@@ -8,13 +8,13 @@ A straight-forward tiny browser extension that ensures all the bluesky links you
 
 ## Installation
 
-There is currently no Extension Store version of this extension, neither Chrome nor Firefox, because thats complex and I am not sure if Google like us very much. To use the extension, you have to manually install it.
+There is currently no Extension Store version of this extension, neither Chrome nor Firefox, because thats complex and I am not sure if Google likes us very much. To use the extension, you have to manually install it.
 
 ### Chrome
 
 Chrome version 102 or newer is required.
 
-1. Download the `zip` file from [releases](https://github.com/clynamic/blue-sky-high/releases).
+1. Download the `zip` file from [releases](https://github.com/clynamic/blue-sky-high/releases/latest).
 2. Unpack this `zip` file into a permanent location of your choosing.
 3. Open `chrome://extensions` in your browser.
 4. Enable the "Developer mode" toggle in the top right.
@@ -27,7 +27,7 @@ Done!
 
 Firefox version 147 or newer is required.
 
-1. Download the `xpi` file from [releases](https://github.com/clynamic/blue-sky-high/releases).
+1. Download the `xpi` file from [releases](https://github.com/clynamic/blue-sky-high/releases/latest).
 2. Open `about:addons` in your browser.
 3. Click the cog icon, select "Install Add-on From File...".
 4. Select the file you downloaded.
@@ -39,7 +39,7 @@ Done!
 
 Firefox version 147 or newer is required.
 
-1. Download the `xpi` file from [releases](https://github.com/clynamic/blue-sky-high/releases).
+1. Download the `xpi` file from [releases](https://github.com/clynamic/blue-sky-high/releases/latest).
 2. Open the Settings, About Firefox, tap the logo five times.
 3. In Settings, tap "Install extension from file".
 4. Select the file you downloaded.
