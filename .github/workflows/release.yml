@@ -1,0 +1,86 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version bump"
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run fmt:check
+
+      - run: npm test
+
+      - name: bump version
+        run: |
+          npm version ${{ inputs.version }} --no-git-tag-version
+          VERSION=$(node -p "require('./package.json').version")
+          node -e "
+            const fs = require('node:fs');
+            const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+            manifest.version = process.argv[1];
+            fs.writeFileSync('manifest.json', JSON.stringify(manifest, null, 2) + '\n');
+          " "$VERSION"
+          npx oxfmt manifest.json
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - run: npm run build
+
+      - run: npm run lint:package
+
+      - name: sign for Firefox
+        run: npx web-ext sign --channel=unlisted
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+
+      - name: commit version bump
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "bumped version to ${{ env.VERSION }}"
+          default_author: github_actions
+          add: |
+            package.json
+            package-lock.json
+            manifest.json
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            web-ext-artifacts/*.xpi
+            web-ext-artifacts/*.zip
+
+      - name: create release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: v${{ env.VERSION }}
+          target_commitish: main
+          files: |
+            web-ext-artifacts/*.xpi
+            web-ext-artifacts/*.zip
