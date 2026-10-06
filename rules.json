@@ -1,0 +1,54 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "regexSubstitution": "https://bsky.social/xrpc/com.atproto.sync.getBlob?did=\\1&cid=\\2"
+      }
+    },
+    "condition": {
+      "regexFilter": "^https://cdn\\.bsky\\.app/img/feed_(?:thumbnail|fullsize)/plain/([^/@]+)/([^/@]+)(?:@[a-z0-9]+)?$",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "regexSubstitution": "https://bsky.social/xrpc/com.atproto.sync.getBlob?did=\\1&cid=\\2"
+      }
+    },
+    "condition": {
+      "regexFilter": "^https://video\\.bsky\\.app/watch/([^/]+)/([^/]+)/(?:playlist\\.m3u8|\\d+p/video\\.m3u8).*$",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 3,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [
+        {
+          "header": "content-disposition",
+          "operation": "set",
+          "value": "inline"
+        },
+        {
+          "header": "content-security-policy",
+          "operation": "set",
+          "value": "default-src 'none'; img-src https://*.bsky.network https://bsky.social; media-src https://*.bsky.network https://bsky.social; sandbox"
+        }
+      ]
+    },
+    "condition": {
+      "urlFilter": "/xrpc/com.atproto.sync.getBlob?",
+      "requestDomains": ["bsky.network", "bsky.social"],
+      "resourceTypes": ["main_frame"]
+    }
+  }
+]

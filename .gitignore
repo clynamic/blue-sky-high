@@ -1,0 +1,7 @@
+node_modules/
+web-ext-artifacts/
+scratch/
+.env
+.web-extension-id
+.amo-upload-uuid
+_metadata/

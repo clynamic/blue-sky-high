@@ -1,0 +1,27 @@
+{
+  "name": "blue-sky-high",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Permanent links and full quality media for bluesky.",
+  "license": "MIT",
+  "author": "binaryfloof",
+  "scripts": {
+    "build": "web-ext build --overwrite-dest",
+    "lint": "web-ext lint && oxlint && node lint/code.js",
+    "lint:fix": "oxlint --fix",
+    "lint:package": "node lint/package.js",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "sign": "dotenv -- web-ext sign --channel=unlisted",
+    "test": "node --test",
+    "verify": "node verify/run.js"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0",
+    "geckodriver": "^7.0.0",
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0",
+    "selenium-webdriver": "^4.50.0",
+    "web-ext": "^10.7.0"
+  }
+}

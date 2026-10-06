@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "Blue Sky High",
+  "version": "0.1.0",
+  "minimum_chrome_version": "102",
+  "description": "Permanent links and full quality media for bluesky.",
+  "author": "binaryfloof",
+  "icons": {
+    "32": "public/icons/icon32.png",
+    "48": "public/icons/icon48.png",
+    "64": "public/icons/icon64.png",
+    "96": "public/icons/icon96.png",
+    "512": "public/icons/icon512.png"
+  },
+  "permissions": ["declarativeNetRequestWithHostAccess"],
+  "host_permissions": [
+    "https://cdn.bsky.app/*",
+    "https://video.bsky.app/*",
+    "https://bsky.social/*",
+    "https://*.bsky.network/*",
+    "https://bsky.app/*"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "original-media",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://bsky.app/*"],
+      "js": ["stable-links.js"]
+    },
+    {
+      "matches": [
+        "https://*.bsky.network/xrpc/com.atproto.sync.getBlob*",
+        "https://bsky.social/xrpc/com.atproto.sync.getBlob*"
+      ],
+      "js": ["media-source.js"]
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "blueskyhigh@clynamic.net",
+      "strict_min_version": "147.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    },
+    "gecko_android": {}
+  }
+}
