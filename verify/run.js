@@ -225,6 +225,30 @@ async function shownWidth(driver, expected) {
   return media;
 }
 
+async function expectStaysPainted(driver, expectedWidth, graceMillis) {
+  const started = Date.now();
+  const widths = [];
+  while (Date.now() - started < 2000) {
+    const width = await driver.executeScript(`
+      const shown = document.images[0] ?? document.querySelector("video");
+      return shown ? (shown.naturalWidth ?? shown.videoWidth) : 0;
+    `);
+    widths.push([Date.now() - started, width]);
+  }
+  const firstPainted = widths.find(([, width]) => width === expectedWidth);
+  if (!firstPainted) {
+    throw new Error(`never painted at ${expectedWidth}px within 2 s of load`);
+  }
+  if (firstPainted[0] > graceMillis) {
+    throw new Error(`first painted ${firstPainted[0]} ms after load, allowed ${graceMillis}`);
+  }
+  const dropped = widths.find(([at, width]) => at > firstPainted[0] && width !== expectedWidth);
+  if (dropped) {
+    throw new Error(`painted frame dropped to ${dropped[1]}px at ${dropped[0]} ms after load`);
+  }
+  return `${firstPainted[0]} ms after load, ${widths.length} samples`;
+}
+
 async function hashFetchedByBrowser(driver, url) {
   await driver.get("about:blank");
   const base64 = await driver.executeAsyncScript(
@@ -341,9 +365,10 @@ async function imageChecks(driver, image) {
     await driver.get(image.sample("feed_fullsize", "@jpeg"));
     expectEqual(await urlWhere(driver, (u) => u.startsWith(image.pds)), image.blob, "url");
     const media = await shownWidth(driver, image.width);
+    const paintedAfter = await expectStaysPainted(driver, image.width, 100);
     expectNoDownload();
     await screenshot(driver, "item-01");
-    return `${media.contentType} ${media.width}px wide`;
+    return `${media.contentType} ${media.width}px wide, painted ${paintedAfter}, kept`;
   });
 
   await check("2 thumbnail, webp, png and bare samples open as the same blob", async () => {
@@ -432,11 +457,7 @@ async function imageChecks(driver, image) {
     await driver.get(image.sample("feed_fullsize", "@jpeg"));
     const shown = await urlWhere(driver, (u) => u.startsWith(image.pds));
     const imageSource = () => driver.executeScript("return document.images[0].currentSrc");
-    try {
-      await driver.wait(async () => (await imageSource()) === shown, 10000);
-    } catch (error) {
-      throw new Error(`image source stayed ${await imageSource()}`, { cause: error });
-    }
+    expectEqual(await imageSource(), shown, "image source at load");
   });
 }
 
@@ -445,6 +466,7 @@ async function videoChecks(driver, video) {
     await driver.get(video.watch("playlist.m3u8"));
     expectEqual(await urlWhere(driver, (u) => u.startsWith(video.pds)), video.encodedBlob, "url");
     const media = await shownWidth(driver, video.width);
+    const paintedAfter = await expectStaysPainted(driver, video.width, 500);
     expectNoDownload();
     expectEqual(
       await driver.executeScript('return document.querySelector("video").currentSrc'),
@@ -452,7 +474,7 @@ async function videoChecks(driver, video) {
       "video source",
     );
     await screenshot(driver, "item-10");
-    return `${media.contentType} ${media.width}px wide`;
+    return `${media.contentType} ${media.width}px wide, painted ${paintedAfter}, kept`;
   });
 
   await check("11 rendition playlists open as the same video", async () => {

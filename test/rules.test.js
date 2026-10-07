@@ -140,11 +140,12 @@ const inlineHeaders = [
     header: "content-security-policy",
     operation: "set",
     value:
-      "default-src 'none'; img-src https://*.bsky.network https://bsky.social; media-src https://*.bsky.network https://bsky.social; sandbox",
+      "default-src 'none'; img-src https://*.bsky.network https://bsky.social; media-src https://*.bsky.network https://bsky.social; sandbox allow-same-origin",
   },
+  { header: "cache-control", operation: "set", value: "private, max-age=86400, immutable" },
 ];
 
-test("shows getBlob inline from a PDS host and from bsky.social with a policy that allows media and keeps the sandbox", () => {
+test("shows getBlob inline from a PDS host and from bsky.social with a sandbox that keeps its origin, media allowed and the blob cached", () => {
   const pdsUrl = `https://pholiota.us-west.host.bsky.network/xrpc/com.atproto.sync.getBlob?did=${sampleDid}&cid=${sampleCid}`;
   assert.deepEqual(responseHeadersFor(pdsUrl), inlineHeaders);
   assert.deepEqual(responseHeadersFor(sampleBlob), inlineHeaders);

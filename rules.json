@@ -41,7 +41,12 @@
         {
           "header": "content-security-policy",
           "operation": "set",
-          "value": "default-src 'none'; img-src https://*.bsky.network https://bsky.social; media-src https://*.bsky.network https://bsky.social; sandbox"
+          "value": "default-src 'none'; img-src https://*.bsky.network https://bsky.social; media-src https://*.bsky.network https://bsky.social; sandbox allow-same-origin"
+        },
+        {
+          "header": "cache-control",
+          "operation": "set",
+          "value": "private, max-age=86400, immutable"
         }
       ]
     },
